@@ -12,6 +12,7 @@ namespace azamsfunctions
         [FunctionName("PublishAsset")]
         public static async Task Run(
             [QueueTrigger("%PublishJobsQueueName%", Connection = "MediaStorageAccount")]string assetId,
+            [Queue("%UpdateCMSQueueName%", Connection = "MediaStorageAccount")]ICollector<UpdateReferenceMessage> updateCMSQueue,
             TraceWriter log)
         {
             log.Info($"C# Queue trigger function processed: {assetId}");
@@ -24,12 +25,16 @@ namespace azamsfunctions
                 return;
 
             var locator = await context.Locators.CreateAsync(
-                    LocatorType.OnDemandOrigin, 
-                    asset, 
-                    AccessPermissions.Read, 
+                    LocatorType.OnDemandOrigin,
+                    asset,
+                    AccessPermissions.Read,
                     TimeSpan.FromDays(365 * 10));
 
-            log.Info($"Asset published to: {asset.GetSmoothStreamingUri().AbsoluteUri}");
+            updateCMSQueue.Add(new UpdateReferenceMessage
+            {
+                AssetId = asset.Id,
+                Status = AssetWorkflowStatus.Published
+            });
         }
     }
 }
