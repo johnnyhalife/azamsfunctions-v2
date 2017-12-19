@@ -1,10 +1,9 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.MediaServices.Client;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace azamsfunctions
 {
@@ -42,12 +41,13 @@ namespace azamsfunctions
                 AspectRatio = m.VideoTracks.Select(vt => $"{vt.DisplayAspectRatioNumerator}:{vt.DisplayAspectRatioDenominator}").FirstOrDefault(),
             }).FirstOrDefault();
 
-            log.Info($"Duration: ${aggregatedMetadata.Duration}");
-            log.Info($"Aspect Ratio: ${aggregatedMetadata.AspectRatio}");
-            log.Info($"Number of Audio Tracks: ${aggregatedMetadata.AudioTracksCount}");
-            log.Info($"Number of Video Bitrates: ${aggregatedMetadata.VideoBitratesCount}");
-            log.Info($"Bitrate: ${aggregatedMetadata.Bitrate}");
-            log.Info($"Dimensions: ${aggregatedMetadata.Width}x${aggregatedMetadata.Height}");
+            log.Info($"Duration: {aggregatedMetadata.Duration}");
+            log.Info($"Aspect Ratio: {aggregatedMetadata.AspectRatio}");
+            log.Info($"Number of Audio Tracks: {aggregatedMetadata.AudioTracksCount}");
+            log.Info($"Number of Video Bitrates: {aggregatedMetadata.VideoBitratesCount}");
+            log.Info($"Bitrate: {aggregatedMetadata.Bitrate}");
+            log.Info($"Dimensions: {aggregatedMetadata.Width}x{aggregatedMetadata.Height}");
+            log.Info($"Base Streaming URL: {asset.GetSmoothStreamingUri()}");
         }
     }
 }
