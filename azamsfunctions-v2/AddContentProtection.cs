@@ -21,7 +21,6 @@ namespace azamsfunctions
             log.Info($"C# Queue trigger function processed: {assetId}");
 
             var context = MediaContextHelper.CreateContext();
-
             var asset = context.Assets.Where(a => a.Id == assetId).FirstOrDefault();
 
             if (asset == null)
