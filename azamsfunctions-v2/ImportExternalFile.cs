@@ -16,7 +16,7 @@ namespace azamsfunctions
     {
         [FunctionName("ImportExternalFile")]
         public static async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "import-external")]
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "import-external")]
             HttpRequestMessage req,
             TraceWriter log)
         {

@@ -13,8 +13,8 @@ namespace azamsfunctions
     public static class GenerateContentProtectionToken
     {
         [FunctionName("GenerateContentProtectionToken")]
-        public static async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "content-protection-token")]HttpRequestMessage req, 
+        public static HttpResponseMessage Run(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "content-protection-token")]HttpRequestMessage req, 
             TraceWriter log)
         {
             log.Info("C# HTTP trigger function processed a request.");
