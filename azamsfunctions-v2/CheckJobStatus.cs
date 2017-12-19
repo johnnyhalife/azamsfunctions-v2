@@ -12,7 +12,7 @@ namespace azamsfunctions
         [FunctionName("CheckJobStatus")]
         public static async Task Run(
             [QueueTrigger("%EncodeJobsQueueName%", Connection = "MediaStorageAccount")] dynamic queueItem,
-            [Queue("%ContentProtectionJobsQueueName%", Connection = "MediaStorageAccount")] ICollector<string> outputDrmQueue,
+            [Queue("%ContentProtectionJobsQueueName%", Connection = "MediaStorageAccount")] ICollector<string> outputContentProtectionQueue,
             [Queue("%PublishJobsQueueName%", Connection = "MediaStorageAccount")] ICollector<string> outputPublishQueue,
             TraceWriter log)
         {
@@ -30,7 +30,7 @@ namespace azamsfunctions
                 return;
 
             // Force to publish current asset
-            outputPublishQueue.Add(job.OutputMediaAssets.FirstOrDefault().Id);
+            outputContentProtectionQueue.Add(job.OutputMediaAssets.FirstOrDefault().Id);
 
             var mezzanineAsset = job.InputMediaAssets.FirstOrDefault();
             await mezzanineAsset.DeleteAsync();

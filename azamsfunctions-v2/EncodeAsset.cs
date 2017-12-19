@@ -19,7 +19,7 @@ namespace azamsfunctions
             [BlobTrigger("%BlobIngestContainer%/{name}", Connection = "MediaStorageAccount")] CloudBlockBlob blob,
             TraceWriter log)
         {
-            log.Info($"C# Blob trigger function Processed blob\n Name:{blob.Name}");
+            log.Info($"C# Blob trigger function Processed blob Name:{blob.Name}");
 
             var mediaStorageAccountCredentials = blob.ServiceClient.Credentials;
             var context = MediaContextHelper.CreateContext();
