@@ -47,8 +47,9 @@ namespace azamsfunctions
             var blobName = url.Segments[url.Segments.Length - 1];
 
             var container = client.GetContainerReference(Environment.GetEnvironmentVariable("BlobIngestContainer"));
-            var blob = container.GetBlockBlobReference(blobName);
+            await container.CreateIfNotExistsAsync();
 
+            var blob = container.GetBlockBlobReference(blobName);
             await blob.StartCopyAsync(url);
 
             return req.CreateResponse(HttpStatusCode.OK);
