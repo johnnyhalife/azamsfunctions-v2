@@ -1,7 +1,9 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.MediaServices.Client;
+using System;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,13 +34,17 @@ namespace azamsfunctions
 
             var aggregatedMetadata = metadata.Select(m => new
             {
+                AssetId = asset.Id,
+                AssetAlternateId = asset.AlternateId,
+                BaseStreamingUri = asset.GetSmoothStreamingUri(),
+
                 m.Duration,
                 AudioTracksCount = m.AudioTracks.Count(),
                 VideoBitratesCount = metadata.Count(),
                 Bitrate = m.VideoTracks.Max(vt => vt.Bitrate),
                 Height = m.VideoTracks.Max(vt => vt.Height),
                 Width = m.VideoTracks.Max(vt => vt.Width),
-                AspectRatio = m.VideoTracks.Select(vt => $"{vt.DisplayAspectRatioNumerator}:{vt.DisplayAspectRatioDenominator}").FirstOrDefault(),
+                AspectRatio = m.VideoTracks.Select(vt => $"{vt.DisplayAspectRatioNumerator}:{vt.DisplayAspectRatioDenominator}").FirstOrDefault()
             }).FirstOrDefault();
 
             log.Info($"Duration: {aggregatedMetadata.Duration}");
@@ -48,6 +54,12 @@ namespace azamsfunctions
             log.Info($"Bitrate: {aggregatedMetadata.Bitrate}");
             log.Info($"Dimensions: {aggregatedMetadata.Width}x{aggregatedMetadata.Height}");
             log.Info($"Base Streaming URL: {asset.GetSmoothStreamingUri()}");
+
+            using (var client = new HttpClient())
+            {
+                await client.PostAsJsonAsync(
+                    Environment.GetEnvironmentVariable("CMSCallbackUrl"), aggregatedMetadata);
+            }
         }
     }
 }
