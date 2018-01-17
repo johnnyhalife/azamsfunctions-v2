@@ -1,13 +1,10 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.MediaServices.Client;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace azamsfunctions
@@ -29,7 +26,11 @@ namespace azamsfunctions
                 AssetCreationOptions.None,
                 CancellationToken.None);
 
-            Task deleteBlobTask = blob.DeleteIfExistsAsync();
+            // Use the metadata stored on the blob as the AlternateID for the asset
+            // that we are about to encode.s
+            await blob.FetchAttributesAsync();
+            asset.AlternateId = blob.Metadata[Constants.ExternalIdProperty];
+            await asset.UpdateAsync();
 
             var mediaEncoderStandardTaskPreset = 
                 Environment.GetEnvironmentVariable("MediaEncoderStandardTaskPreset");
@@ -48,7 +49,8 @@ namespace azamsfunctions
             job.JobNotificationSubscriptions.AddNew(NotificationJobState.All, endpoint);
             await job.SubmitAsync();
 
-            await deleteBlobTask;
+            // Clean up the original Blob from the Storage Account.
+            await blob.DeleteIfExistsAsync();
         }
 
         public static async Task<INotificationEndPoint> GetOrCreateQueueNotificationEndpoint(

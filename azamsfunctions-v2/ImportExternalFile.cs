@@ -40,6 +40,13 @@ namespace azamsfunctions
                     "The body parameter `source` is required");
             }
 
+            if (body.id == null)
+            {
+                return req.CreateResponse(
+                    HttpStatusCode.BadRequest,
+                    "The body parameter `id` is required");
+            }
+
             var storage = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("MediaStorageAccount"));
             var client = storage.CreateCloudBlobClient();
 
@@ -51,6 +58,11 @@ namespace azamsfunctions
 
             var blob = container.GetBlockBlobReference(blobName);
             await blob.StartCopyAsync(url);
+
+            // Store the CMS target ID as a blob property that will be propagated
+            // as the AlternateId on the Assets.
+            blob.Metadata.Add(Constants.ExternalIdProperty, body.id.ToString());
+            await blob.SetMetadataAsync();
 
             return req.CreateResponse(HttpStatusCode.OK);
         }

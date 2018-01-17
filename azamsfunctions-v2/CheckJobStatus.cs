@@ -29,11 +29,18 @@ namespace azamsfunctions
             if (job == null)
                 return;
 
-            // Force to publish current asset
-            outputContentProtectionQueue.Add(job.OutputMediaAssets.FirstOrDefault().Id);
-
+            // Copy the Alternate ID from the Mezzanine Asset to the Output Asset
             var mezzanineAsset = job.InputMediaAssets.FirstOrDefault();
+            var outputAsset = job.OutputMediaAssets.FirstOrDefault();
+
+            outputAsset.AlternateId = mezzanineAsset.AlternateId;
+            await outputAsset.UpdateAsync();
+
+            // Cleanup mezzanine asset
             await mezzanineAsset.DeleteAsync();
+
+            // Force to publish current asset
+            outputPublishQueue.Add(outputAsset.Id);
         }
     }
 }
