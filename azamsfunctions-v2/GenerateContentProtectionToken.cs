@@ -19,25 +19,27 @@ namespace azamsfunctions
         {
             log.Info("C# HTTP trigger function processed a request.");
 
-            var restrictionPrimaryVerificationKey = Environment.GetEnvironmentVariable("JWTRestrictionPrimaryVerificationKey");
-            var restrictionAudience = Environment.GetEnvironmentVariable("JWTRestrictionAudience");
-            var restrictionIssuer = Environment.GetEnvironmentVariable("JWTRestrictionIssuer");
+            return req.CreateResponse(HttpStatusCode.OK, "this-is-a-sample-token");
+
+            //var restrictionPrimaryVerificationKey = Environment.GetEnvironmentVariable("JWTRestrictionPrimaryVerificationKey");
+            //var restrictionAudience = Environment.GetEnvironmentVariable("JWTRestrictionAudience");
+            //var restrictionIssuer = Environment.GetEnvironmentVariable("JWTRestrictionIssuer");
             
-            var cred = new SigningCredentials(
-               new InMemorySymmetricSecurityKey(Convert.FromBase64String(restrictionPrimaryVerificationKey)),
-               "http://www.w3.org/2001/04/xmldsig-more#hmac-sha256",
-               "http://www.w3.org/2001/04/xmlenc#sha256");
+            //var cred = new SigningCredentials(
+            //   new InMemorySymmetricSecurityKey(Convert.FromBase64String(restrictionPrimaryVerificationKey)),
+            //   "http://www.w3.org/2001/04/xmldsig-more#hmac-sha256",
+            //   "http://www.w3.org/2001/04/xmlenc#sha256");
 
-            var jwtToken = new JwtSecurityToken(
-                 issuer: restrictionIssuer,
-                 audience: restrictionAudience,
-                 notBefore: DateTime.UtcNow.AddMinutes(-1),
-                 expires: DateTime.UtcNow.AddMinutes(10),
-                 signingCredentials: cred);
+            //var jwtToken = new JwtSecurityToken(
+            //     issuer: restrictionIssuer,
+            //     audience: restrictionAudience,
+            //     notBefore: DateTime.UtcNow.AddMinutes(-1),
+            //     expires: DateTime.UtcNow.AddMinutes(10),
+            //     signingCredentials: cred);
 
-            var handler = new JwtSecurityTokenHandler();
+            //var handler = new JwtSecurityTokenHandler();
 
-            return req.CreateResponse(HttpStatusCode.OK, handler.WriteToken(jwtToken));
+            //return req.CreateResponse(HttpStatusCode.OK, handler.WriteToken(jwtToken));
         }
     }
 }
