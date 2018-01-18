@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -7,7 +6,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
 using Newtonsoft.Json.Linq;
 
 namespace azamsfunctions
@@ -51,18 +49,13 @@ namespace azamsfunctions
             var client = storage.CreateCloudBlobClient();
 
             var url = new Uri(body.source.ToString());
-            var blobName = url.Segments[url.Segments.Length - 1];
+            var blobName = $"{body.id.ToString()}-{Guid.NewGuid().ToString()}";
 
             var container = client.GetContainerReference(Environment.GetEnvironmentVariable("BlobIngestContainer"));
             await container.CreateIfNotExistsAsync();
 
             var blob = container.GetBlockBlobReference(blobName);
             await blob.StartCopyAsync(url);
-
-            // Store the CMS target ID as a blob property that will be propagated
-            // as the AlternateId on the Assets.
-            blob.Metadata.Add(Constants.ExternalIdProperty, body.id.ToString());
-            await blob.SetMetadataAsync();
 
             return req.CreateResponse(HttpStatusCode.OK);
         }

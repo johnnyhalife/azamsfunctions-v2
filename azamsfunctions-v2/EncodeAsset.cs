@@ -25,11 +25,9 @@ namespace azamsfunctions
                 mediaStorageAccountCredentials,
                 AssetCreationOptions.None,
                 CancellationToken.None);
-
-            // Use the metadata stored on the blob as the AlternateID for the asset
-            // that we are about to encode.s
-            await blob.FetchAttributesAsync();
-            asset.AlternateId = blob.Metadata[Constants.ExternalIdProperty];
+            
+            // Add the Alternate ID original stored on the Blob Name as partial path
+            asset.AlternateId = blob.Name.Split('-').First();
             await asset.UpdateAsync();
 
             var mediaEncoderStandardTaskPreset = 
