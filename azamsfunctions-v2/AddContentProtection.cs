@@ -27,6 +27,16 @@ namespace azamsfunctions
                 return;
 
             // PlayReady + Widevine
+            await AddPlayReadyWidevineEncryption(context, asset);
+
+            // FairPlay
+            await AddFairPlayEncryption(context, asset);
+
+            outputPublishQueue.Add(asset.Id);
+        }
+
+        private static async Task AddPlayReadyWidevineEncryption(MediaContextBase context, IAsset asset)
+        {
             var commonEncryptionKey = await CreateCommonEncryptionKey(context, asset);
             var commonEncryptionAuthPolicy = context.ContentKeyAuthorizationPolicies
                 .Where(p => p.Name == Environment.GetEnvironmentVariable("CommonEncryptionAuthorizationPolicyName"))
@@ -46,8 +56,10 @@ namespace azamsfunctions
                 return;
 
             asset.DeliveryPolicies.Add(dynamicCommonEncryptionDeliveryPolicy);
+        }
 
-            // FairPlay
+        private static async Task AddFairPlayEncryption(MediaContextBase context, IAsset asset)
+        {
             var commonEncryptionCbcsKey = await CreateCommonEncryptionCbcsKey(context, asset);
             var commonEncryptionCbcsAuthPolicy = context.ContentKeyAuthorizationPolicies
                 .Where(p => p.Name == Environment.GetEnvironmentVariable("CommonEncryptionCbcsAuthorizationPolicyName"))
@@ -67,8 +79,6 @@ namespace azamsfunctions
                 return;
 
             asset.DeliveryPolicies.Add(dynamicCommonEncryptionCbcsDeliveryPolicy);
-
-            outputPublishQueue.Add(asset.Id);
         }
 
         public static async Task<IContentKey> CreateCommonEncryptionKey(MediaContextBase context, IAsset asset)

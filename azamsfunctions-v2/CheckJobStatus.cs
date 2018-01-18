@@ -13,7 +13,6 @@ namespace azamsfunctions
         public static async Task Run(
             [QueueTrigger("%EncodeJobsQueueName%", Connection = "MediaStorageAccount")] dynamic queueItem,
             [Queue("%ContentProtectionJobsQueueName%", Connection = "MediaStorageAccount")] ICollector<string> outputContentProtectionQueue,
-            [Queue("%PublishJobsQueueName%", Connection = "MediaStorageAccount")] ICollector<string> outputPublishQueue,
             TraceWriter log)
         {
             log.Info($"C# Queue trigger function processed: {queueItem}");
@@ -39,8 +38,8 @@ namespace azamsfunctions
             // Cleanup mezzanine asset
             await mezzanineAsset.DeleteAsync();
 
-            // Force to publish current asset
-            outputPublishQueue.Add(outputAsset.Id);
+            // Add Content Protection
+            outputContentProtectionQueue.Add(outputAsset.Id);
         }
     }
 }
