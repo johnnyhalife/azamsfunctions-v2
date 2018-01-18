@@ -47,14 +47,17 @@ namespace azamsfunctions
                 AspectRatio = m.VideoTracks.Select(vt => $"{vt.DisplayAspectRatioNumerator}:{vt.DisplayAspectRatioDenominator}").FirstOrDefault()
             }).FirstOrDefault();
 
+            log.Info($"AssetId: {aggregatedMetadata.AssetId}");
+            log.Info($"AssetAlternateId: {aggregatedMetadata.AssetAlternateId}");
+            log.Info($"Base Streaming URL: {asset.GetSmoothStreamingUri()}");
             log.Info($"Duration: {aggregatedMetadata.Duration}");
-            log.Info($"Aspect Ratio: {aggregatedMetadata.AspectRatio}");
             log.Info($"Number of Audio Tracks: {aggregatedMetadata.AudioTracksCount}");
             log.Info($"Number of Video Bitrates: {aggregatedMetadata.VideoBitratesCount}");
             log.Info($"Bitrate: {aggregatedMetadata.Bitrate}");
-            log.Info($"Dimensions: {aggregatedMetadata.Width}x{aggregatedMetadata.Height}");
-            log.Info($"Base Streaming URL: {asset.GetSmoothStreamingUri()}");
-
+            log.Info($"Height: {aggregatedMetadata.Height}");
+            log.Info($"Width: {aggregatedMetadata.Width}");
+            log.Info($"AspectRatio: {aggregatedMetadata.AspectRatio}");
+            
             using (var client = new HttpClient())
             {
                 await client.PostAsJsonAsync(
