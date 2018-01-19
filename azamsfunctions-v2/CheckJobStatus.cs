@@ -11,8 +11,12 @@ namespace azamsfunctions
     {
         [FunctionName("CheckJobStatus")]
         public static async Task Run(
-            [QueueTrigger("%EncodeJobsQueueName%", Connection = "MediaStorageAccount")] dynamic queueItem,
-            [Queue("%ContentProtectionJobsQueueName%", Connection = "MediaStorageAccount")] ICollector<string> outputContentProtectionQueue,
+            [QueueTrigger("%EncodeJobsQueueName%", Connection = "MediaStorageAccount")]
+            dynamic queueItem,
+            [Queue("%ContentProtectionJobsQueueName%", Connection = "MediaStorageAccount")]
+            ICollector<string> outputContentProtectionQueue,
+            [Queue("%PublishJobsQueueName%", Connection = "MediaStorageAccount")]
+            ICollector<string> outputPublishQueue,
             TraceWriter log)
         {
             log.Info($"C# Queue trigger function processed: {queueItem}");
@@ -39,7 +43,7 @@ namespace azamsfunctions
             await mezzanineAsset.DeleteAsync();
 
             // Add Content Protection
-            outputContentProtectionQueue.Add(outputAsset.Id);
+            outputPublishQueue.Add(outputAsset.Id);
         }
     }
 }

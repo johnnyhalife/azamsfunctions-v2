@@ -13,10 +13,16 @@ namespace azamsfunctions
     {
         [FunctionName("EncodeAsset")]
         public static async Task Run(
-            [BlobTrigger("%BlobIngestContainer%/{name}", Connection = "MediaStorageAccount")] CloudBlockBlob blob,
+            [BlobTrigger("%BlobIngestContainer%/{name}", Connection = "MediaStorageAccount")]
+            CloudBlockBlob blob,
             TraceWriter log)
         {
             log.Info($"C# Blob trigger function Processed blob Name: {blob.Name}");
+
+            // We're avoiding incomplete blob processing. Eventually the engine 
+            // will pick it up from the container, when it's completed.
+            if (blob.CopyState.Status != CopyStatus.Success)
+                return;
 
             var mediaStorageAccountCredentials = blob.ServiceClient.Credentials;
             var context = MediaContextHelper.CreateContext();
