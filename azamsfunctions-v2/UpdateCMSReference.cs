@@ -32,20 +32,26 @@ namespace azamsfunctions
             // information for the CMS, will be read from the Asset Metadata as follows.
             var metadata = await asset.GetMetadataAsync(CancellationToken.None);
 
-            var aggregatedMetadata = metadata.Select(m => new
+            // Sometimes by the time we reach this point the locator ain't ready. Hence we're 
+            // we're throwing an exception when metadata isn't ready, to reprocess on a 
+            // future iteration. 
+            if (metadata == null || metadata.Count() == 0)
+                throw new Exception($"Asset {asset.Id} metadata is not ready yet.");
+
+            var aggregatedMetadata = new
             {
                 AssetId = asset.Id,
                 AssetAlternateId = asset.AlternateId,
                 BaseStreamingUri = asset.GetSmoothStreamingUri(),
 
-                m.Duration,
-                AudioTracksCount = m.AudioTracks.Count(),
+                Duration = metadata.Max(m => m.Duration),
+                AudioTracksCount = metadata.Max(m => m.AudioTracks.Count()),
                 VideoBitratesCount = metadata.Count(),
-                Bitrate = m.VideoTracks.Max(vt => vt.Bitrate),
-                Height = m.VideoTracks.Max(vt => vt.Height),
-                Width = m.VideoTracks.Max(vt => vt.Width),
-                AspectRatio = m.VideoTracks.Select(vt => $"{vt.DisplayAspectRatioNumerator}:{vt.DisplayAspectRatioDenominator}").FirstOrDefault()
-            }).FirstOrDefault();
+                Bitrate = metadata.SelectMany(m => m.VideoTracks).Max(vt => vt.Bitrate),
+                Height = metadata.SelectMany(m => m.VideoTracks).Max(vt => vt.Height),
+                Width = metadata.SelectMany(m => m.VideoTracks).Max(vt => vt.Width),
+                AspectRatio = metadata.SelectMany(m => m.VideoTracks).Select(vt => $"{vt.DisplayAspectRatioNumerator}:{vt.DisplayAspectRatioDenominator}").FirstOrDefault()
+            };
 
             log.Info($"AssetId: {aggregatedMetadata.AssetId}");
             log.Info($"AssetAlternateId: {aggregatedMetadata.AssetAlternateId}");
