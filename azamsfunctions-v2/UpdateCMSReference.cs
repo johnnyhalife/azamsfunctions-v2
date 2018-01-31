@@ -32,6 +32,12 @@ namespace azamsfunctions
             // information for the CMS, will be read from the Asset Metadata as follows.
             var metadata = await asset.GetMetadataAsync(CancellationToken.None);
 
+            // Sometimes by the time we reach this point the locator ain't ready. Hence we're 
+            // we're throwing an exception when metadata isn't ready, to reprocess on a 
+            // future iteration. 
+            if (metadata == null || metadata.Count() == 0)
+                throw new Exception($"Asset {asset.Id} metadata is not ready yet.");
+
             var aggregatedMetadata = new
             {
                 AssetId = asset.Id,
