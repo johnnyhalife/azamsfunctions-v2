@@ -65,7 +65,15 @@ namespace azamsfunctions
 
             var blobName = $"{body.id.ToString()}-{Guid.NewGuid().ToString()}";
             var blob = container.GetBlockBlobReference(blobName);
-            await blob.StartCopyAsync(url);
+
+            try
+            {
+                await blob.StartCopyAsync(url);
+            }
+            catch
+            {
+                return req.CreateResponse(HttpStatusCode.NotFound);
+            }
 
             return req.CreateResponse(HttpStatusCode.OK);
         }
