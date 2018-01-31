@@ -32,20 +32,20 @@ namespace azamsfunctions
             // information for the CMS, will be read from the Asset Metadata as follows.
             var metadata = await asset.GetMetadataAsync(CancellationToken.None);
 
-            var aggregatedMetadata = metadata.Select(m => new
+            var aggregatedMetadata = new
             {
                 AssetId = asset.Id,
                 AssetAlternateId = asset.AlternateId,
                 BaseStreamingUri = asset.GetSmoothStreamingUri(),
 
-                m.Duration,
-                AudioTracksCount = m.AudioTracks.Count(),
+                Duration = metadata.Max(m => m.Duration),
+                AudioTracksCount = metadata.Max(m => m.AudioTracks.Count()),
                 VideoBitratesCount = metadata.Count(),
-                Bitrate = m.VideoTracks.Max(vt => vt.Bitrate),
-                Height = m.VideoTracks.Max(vt => vt.Height),
-                Width = m.VideoTracks.Max(vt => vt.Width),
-                AspectRatio = m.VideoTracks.Select(vt => $"{vt.DisplayAspectRatioNumerator}:{vt.DisplayAspectRatioDenominator}").FirstOrDefault()
-            }).FirstOrDefault();
+                Bitrate = metadata.SelectMany(m => m.VideoTracks).Max(vt => vt.Bitrate),
+                Height = metadata.SelectMany(m => m.VideoTracks).Max(vt => vt.Height),
+                Width = metadata.SelectMany(m => m.VideoTracks).Max(vt => vt.Width),
+                AspectRatio = metadata.SelectMany(m => m.VideoTracks).Select(vt => $"{vt.DisplayAspectRatioNumerator}:{vt.DisplayAspectRatioDenominator}").FirstOrDefault()
+            };
 
             log.Info($"AssetId: {aggregatedMetadata.AssetId}");
             log.Info($"AssetAlternateId: {aggregatedMetadata.AssetAlternateId}");
